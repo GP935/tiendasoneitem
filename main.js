@@ -104,6 +104,47 @@ function initFaq() {
   });
 }
 
+function initLightbox() {
+  const lightbox    = document.getElementById('lightbox');
+  if (!lightbox) return;
+
+  const lightboxImg = lightbox.querySelector('.lightbox__imagen');
+  const btnCerrar   = lightbox.querySelector('.lightbox__cerrar');
+  let anteriorFoco  = null;
+
+  document.querySelectorAll('[data-lightbox]').forEach(btn => {
+    btn.addEventListener('click', () => {
+      anteriorFoco      = btn;
+      lightboxImg.src   = btn.dataset.lightbox;
+      lightboxImg.alt   = btn.dataset.lightboxAlt || '';
+      lightbox.removeAttribute('hidden');
+      requestAnimationFrame(() => lightbox.classList.add('is-open'));
+      btnCerrar.focus();
+      document.body.style.overflow = 'hidden';
+    });
+  });
+
+  function cerrar() {
+    lightbox.classList.remove('is-open');
+    lightbox.addEventListener('transitionend', () => {
+      lightbox.setAttribute('hidden', '');
+      lightboxImg.src = '';
+      document.body.style.overflow = '';
+      if (anteriorFoco) anteriorFoco.focus();
+    }, { once: true });
+  }
+
+  btnCerrar.addEventListener('click', cerrar);
+
+  lightbox.addEventListener('click', e => {
+    if (e.target === lightbox) cerrar();
+  });
+
+  document.addEventListener('keydown', e => {
+    if (e.key === 'Escape' && !lightbox.hasAttribute('hidden')) cerrar();
+  });
+}
+
 function initFooterYear() {
   const el = document.getElementById('footer-year');
   if (el) el.textContent = new Date().getFullYear();
@@ -115,4 +156,5 @@ document.addEventListener('DOMContentLoaded', () => {
   initStripeCheckout();
   initStickyBar();
   initFaq();
+  initLightbox();
 });
